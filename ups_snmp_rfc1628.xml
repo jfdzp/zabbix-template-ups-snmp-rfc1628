@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+  <version>7.4</version>
+  <template_groups>
+    <template_group>
+      <uuid>ba114513b822473c851adb273958f7a2</uuid>
+      <name>Templates/Network devices</name>
+    </template_group>
+  </template_groups>
+  <templates>
+    <template>
+      <uuid>c9759e02abd74f849cdc86e176063ba2</uuid>
+      <template>UPS SNMP RFC1628</template>
+      <name>UPS SNMP RFC1628</name>
+      <description>Template for UPS devices based on the standard UPS-MIB (RFC 1628). Compatible with any SNMP-capable UPS (APC, Eaton, Riello, Online, and others).</description>
+      <groups>
+        <group>
+          <name>Templates/Network devices</name>
+        </group>
+      </groups>
+
+      <macros>
+        <macro>
+          <macro>{$SNMP_COMMUNITY}</macro>
+          <value>public</value>
+          <description>SNMP v2c community string - override at host level</description>
+        </macro>
+        <macro>
+          <macro>{$UPS_BATTERY_WARN}</macro>
+          <value>50</value>
+          <description>Warning when battery charge drops below this value (%)</description>
+        </macro>
+        <macro>
+          <macro>{$UPS_BATTERY_CRIT}</macro>
+          <value>20</value>
+          <description>Critical when battery charge drops below this value (%)</description>
+        </macro>
+        <macro>
+          <macro>{$UPS_RUNTIME_WARN}</macro>
+          <value>15</value>
+          <description>Warning when remaining runtime drops below this value (minutes)</description>
+        </macro>
+        <macro>
+          <macro>{$UPS_LOAD_WARN}</macro>
+          <value>80</value>
+          <description>Warning when UPS load exceeds this value (%)</description>
+        </macro>
+        <macro>
+          <macro>{$UPS_TEMP_WARN}</macro>
+          <value>40</value>
+          <description>Warning when battery temperature exceeds this value (deg C)</description>
+        </macro>
+      </macros>
+
+      <items>
+
+        <!-- IDENTIFICATION -->
+        <item>
+          <uuid>e4a93e55a5f34217a191028b30455c44</uuid>
+          <name>UPS - Manufacturer</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.1.1.0</snmp_oid>
+          <key>ups.ident.manufacturer</key>
+          <delay>3600s</delay>
+          <value_type>CHAR</value_type>
+          <tags>
+            <tag><tag>component</tag><value>identity</value></tag>
+          </tags>
+        </item>
+
+        <item>
+          <uuid>ac76f51d76ad453ba2ac39647a0541e1</uuid>
+          <name>UPS - Model</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.1.2.0</snmp_oid>
+          <key>ups.ident.model</key>
+          <delay>3600s</delay>
+          <value_type>CHAR</value_type>
+          <tags>
+            <tag><tag>component</tag><value>identity</value></tag>
+          </tags>
+        </item>
+
+        <!-- BATTERY -->
+        <item>
+          <uuid>549829536d404a7aa72d41dc9fcba137</uuid>
+          <name>UPS - Battery Status</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.2.1.0</snmp_oid>
+          <key>ups.battery.status</key>
+          <delay>60s</delay>
+          <valuemap>
+            <name>UPS Battery Status</name>
+          </valuemap>
+          <tags>
+            <tag><tag>component</tag><value>battery</value></tag>
+          </tags>
+          <triggers>
+            <trigger>
+              <uuid>a17727db8fb0445f893fee9f7874c4ad</uuid>
+              <expression>last(/UPS SNMP RFC1628/ups.battery.status)=3</expression>
+              <name>UPS {HOST.NAME}: Low battery</name>
+              <priority>HIGH</priority>
+              <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+              <recovery_expression>last(/UPS SNMP RFC1628/ups.battery.status)=2</recovery_expression>
+            </trigger>
+            <trigger>
+              <uuid>02366f7e7fb5441cb368fbcf09601258</uuid>
+              <expression>last(/UPS SNMP RFC1628/ups.battery.status)=4</expression>
+              <name>UPS {HOST.NAME}: Battery depleted</name>
+              <priority>DISASTER</priority>
+              <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+              <recovery_expression>last(/UPS SNMP RFC1628/ups.battery.status)=2</recovery_expression>
+            </trigger>
+          </triggers>
+        </item>
+
+        <item>
+          <uuid>89eede0d2dce4735b4959d723b8d2bf5</uuid>
+          <name>UPS - Battery Charge %</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.2.4.0</snmp_oid>
+          <key>ups.battery.charge</key>
+          <delay>60s</delay>
+          <units>%</units>
+          <tags>
+            <tag><tag>component</tag><value>battery</value></tag>
+          </tags>
+          <triggers>
+            <trigger>
+              <uuid>0abe80461acb4f099f6a32bc6c98d879</uuid>
+              <expression>last(/UPS SNMP RFC1628/ups.battery.charge)&lt;{$UPS_BATTERY_WARN}</expression>
+              <name>UPS {HOST.NAME}: Battery charge below {$UPS_BATTERY_WARN}%</name>
+              <priority>WARNING</priority>
+              <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+              <recovery_expression>last(/UPS SNMP RFC1628/ups.battery.charge)&gt;={$UPS_BATTERY_WARN}</recovery_expression>
+            </trigger>
+            <trigger>
+              <uuid>53aa3443513c498e843bccae102feffc</uuid>
+              <expression>last(/UPS SNMP RFC1628/ups.battery.charge)&lt;{$UPS_BATTERY_CRIT}</expression>
+              <name>UPS {HOST.NAME}: CRITICAL - Battery charge below {$UPS_BATTERY_CRIT}%</name>
+              <priority>HIGH</priority>
+              <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+              <recovery_expression>last(/UPS SNMP RFC1628/ups.battery.charge)&gt;={$UPS_BATTERY_CRIT}</recovery_expression>
+            </trigger>
+          </triggers>
+        </item>
+
+        <item>
+          <uuid>1ae63f8aa1894c24bea03fbf080fcb43</uuid>
+          <name>UPS - Remaining Runtime</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.2.3.0</snmp_oid>
+          <key>ups.battery.runtime</key>
+          <delay>60s</delay>
+          <units>min</units>
+          <tags>
+            <tag><tag>component</tag><value>battery</value></tag>
+          </tags>
+          <triggers>
+            <trigger>
+              <uuid>666a5eb063734bd98cc9cc5914e2e8cd</uuid>
+              <expression>last(/UPS SNMP RFC1628/ups.battery.runtime)&lt;{$UPS_RUNTIME_WARN} and last(/UPS SNMP RFC1628/ups.output.source)=5</expression>
+              <name>UPS {HOST.NAME}: Runtime below {$UPS_RUNTIME_WARN} minutes - running on battery</name>
+              <priority>HIGH</priority>
+            </trigger>
+          </triggers>
+        </item>
+
+        <item>
+          <uuid>d85592486edf4a3aa58ce4b56910e43f</uuid>
+          <name>UPS - Battery Temperature</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.2.7.0</snmp_oid>
+          <key>ups.battery.temperature</key>
+          <delay>120s</delay>
+          <units>°C</units>
+          <tags>
+            <tag><tag>component</tag><value>battery</value></tag>
+          </tags>
+          <triggers>
+            <trigger>
+              <uuid>6cd78ac718574c259b2094ea4fcf6d0f</uuid>
+              <expression>last(/UPS SNMP RFC1628/ups.battery.temperature)&gt;{$UPS_TEMP_WARN}</expression>
+              <name>UPS {HOST.NAME}: Battery temperature above {$UPS_TEMP_WARN}°C</name>
+              <priority>WARNING</priority>
+            </trigger>
+          </triggers>
+        </item>
+
+        <item>
+          <uuid>989059495aa34d6787efdfd697de7d0a</uuid>
+          <name>UPS - Time on Battery</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.2.2.0</snmp_oid>
+          <key>ups.battery.seconds.on.battery</key>
+          <delay>60s</delay>
+          <units>s</units>
+          <tags>
+            <tag><tag>component</tag><value>battery</value></tag>
+          </tags>
+        </item>
+
+        <!-- EINGANG -->
+        <item>
+          <uuid>3fe631e251d2452dbc06b539cc04932d</uuid>
+          <name>UPS - Input Voltage</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.3.3.1.3.1</snmp_oid>
+          <key>ups.input.voltage</key>
+          <delay>60s</delay>
+          <units>V</units>
+          <tags>
+            <tag><tag>component</tag><value>input</value></tag>
+          </tags>
+        </item>
+
+        <item>
+          <uuid>6f2283daa9434facadf00dcda1ae4839</uuid>
+          <name>UPS - Input Frequency</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.3.3.1.2.1</snmp_oid>
+          <key>ups.input.frequency</key>
+          <delay>60s</delay>
+          <units>Hz</units>
+          <preprocessing>
+            <step>
+              <type>MULTIPLIER</type>
+              <parameters>
+                <parameter>0.1</parameter>
+              </parameters>
+            </step>
+          </preprocessing>
+          <tags>
+            <tag><tag>component</tag><value>input</value></tag>
+          </tags>
+        </item>
+
+        <!-- AUSGANG -->
+        <item>
+          <uuid>5182039b76b041818f4f0f16c350ddf9</uuid>
+          <name>UPS - Output Source</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.4.1.0</snmp_oid>
+          <key>ups.output.source</key>
+          <delay>60s</delay>
+          <valuemap>
+            <name>UPS Output Source</name>
+          </valuemap>
+          <tags>
+            <tag><tag>component</tag><value>output</value></tag>
+          </tags>
+          <triggers>
+            <trigger>
+              <uuid>60deac75b44243e29290fb48d2f00137</uuid>
+              <expression>last(/UPS SNMP RFC1628/ups.output.source)=5</expression>
+              <name>UPS {HOST.NAME}: POWER FAILURE - running on battery</name>
+              <priority>HIGH</priority>
+              <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+              <recovery_expression>last(/UPS SNMP RFC1628/ups.output.source)=3</recovery_expression>
+            </trigger>
+          </triggers>
+        </item>
+
+        <item>
+          <uuid>9134457a49b34e70bb275023325e2ff1</uuid>
+          <name>UPS - Output Voltage</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.4.4.1.2.1</snmp_oid>
+          <key>ups.output.voltage</key>
+          <delay>60s</delay>
+          <units>V</units>
+          <tags>
+            <tag><tag>component</tag><value>output</value></tag>
+          </tags>
+        </item>
+
+        <item>
+          <uuid>f6a5b1f4daed49dc95fe8159acfa43bc</uuid>
+          <name>UPS - Output Power</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.4.4.1.4.1</snmp_oid>
+          <key>ups.output.power</key>
+          <delay>60s</delay>
+          <units>W</units>
+          <tags>
+            <tag><tag>component</tag><value>output</value></tag>
+          </tags>
+        </item>
+
+        <item>
+          <uuid>05719d1958f241949deff34d378bbd14</uuid>
+          <name>UPS - Load %</name>
+          <type>SNMP_AGENT</type>
+          <snmp_oid>1.3.6.1.2.1.33.1.4.4.1.5.1</snmp_oid>
+          <key>ups.output.load</key>
+          <delay>60s</delay>
+          <units>%</units>
+          <tags>
+            <tag><tag>component</tag><value>output</value></tag>
+          </tags>
+          <triggers>
+            <trigger>
+              <uuid>3b7e394ac1344a86a9dd7efec486c16c</uuid>
+              <expression>avg(/UPS SNMP RFC1628/ups.output.load,5m)&gt;{$UPS_LOAD_WARN}</expression>
+              <name>UPS {HOST.NAME}: Load above {$UPS_LOAD_WARN}%</name>
+              <priority>WARNING</priority>
+            </trigger>
+          </triggers>
+        </item>
+
+        <!-- ICMP -->
+        <item>
+          <uuid>d27c52bed6cb450ea099ee0e7215ece6</uuid>
+          <name>ICMP Ping - Availability</name>
+          <type>SIMPLE</type>
+          <key>icmpping</key>
+          <delay>60s</delay>
+          <valuemap>
+            <name>Ping Status</name>
+          </valuemap>
+          <tags>
+            <tag><tag>component</tag><value>availability</value></tag>
+          </tags>
+          <triggers>
+            <trigger>
+              <uuid>0ef75c3915d8493493821fb05eabb3cf</uuid>
+              <expression>max(/UPS SNMP RFC1628/icmpping,#3)=0</expression>
+              <name>UPS {HOST.NAME} is unreachable</name>
+              <priority>WARNING</priority>
+            </trigger>
+          </triggers>
+        </item>
+
+      </items>
+
+      <valuemaps>
+        <valuemap>
+          <uuid>7e814462a3e34bc5b58c93b966b2015c</uuid>
+          <name>UPS Battery Status</name>
+          <mappings>
+            <mapping><value>1</value><newvalue>Unknown</newvalue></mapping>
+            <mapping><value>2</value><newvalue>Normal</newvalue></mapping>
+            <mapping><value>3</value><newvalue>Low Battery</newvalue></mapping>
+            <mapping><value>4</value><newvalue>Depleted</newvalue></mapping>
+          </mappings>
+        </valuemap>
+        <valuemap>
+          <uuid>aa2315f005a5423a8fb787201b1fc6ba</uuid>
+          <name>UPS Output Source</name>
+          <mappings>
+            <mapping><value>1</value><newvalue>Other</newvalue></mapping>
+            <mapping><value>2</value><newvalue>None</newvalue></mapping>
+            <mapping><value>3</value><newvalue>Normal (Netz)</newvalue></mapping>
+            <mapping><value>4</value><newvalue>Bypass</newvalue></mapping>
+            <mapping><value>5</value><newvalue>On Battery</newvalue></mapping>
+            <mapping><value>6</value><newvalue>Booster</newvalue></mapping>
+            <mapping><value>7</value><newvalue>Reducer</newvalue></mapping>
+          </mappings>
+        </valuemap>
+        <valuemap>
+          <uuid>8964d12a20354ef780c7eccad14d69b2</uuid>
+          <name>Ping Status</name>
+          <mappings>
+            <mapping><value>0</value><newvalue>Unreachable</newvalue></mapping>
+            <mapping><value>1</value><newvalue>Reachable</newvalue></mapping>
+          </mappings>
+        </valuemap>
+      </valuemaps>
+
+    </template>
+  </templates>
+</zabbix_export>

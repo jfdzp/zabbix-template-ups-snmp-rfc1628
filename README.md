@@ -1,53 +1,48 @@
-# Dell iDRAC SNMP
+# UPS SNMP (RFC 1628)
 
-Zabbix 7.4 template for Dell PowerEdge server hardware, read from the iDRAC
-management controller over SNMP (IDRAC-MIB, OID base
-`1.3.6.1.4.1.674.10892.5`). The iDRAC reports the physical health that the
-operating system cannot see, so this template complements, rather than
-replaces, OS level monitoring. The headline case is a degraded RAID array: a
-physical disk fails, the server keeps running, and nothing in Windows notices
-until the second disk goes. The iDRAC sees it immediately.
+Zabbix 7.4 template for UPS devices built on the vendor neutral Standard
+UPS-MIB (RFC 1628, OID base `1.3.6.1.2.1.33`). Because it uses the standard MIB
+rather than a vendor private one, the same template works across APC, Eaton,
+Riello, Online and most other SNMP capable UPS units.
 
 ## What it monitors
 
 | Area | Items |
 |------|-------|
-| Inventory | service tag, model, hostname, operating system |
-| Global health | overall system status, storage/RAID status |
-| Power supplies (per PSU) | status, failure trigger |
-| Physical disks (per disk) | status, failure / degraded trigger |
-| Temperatures (per sensor) | value (deg C), warning and critical thresholds |
-| Fans (per fan) | status, low priority fault trigger |
+| Identity | manufacturer, model |
+| Battery | status, charge %, remaining runtime, temperature |
+| Power state | output source (mains vs battery), time on battery |
+| Input | voltage, frequency |
+| Output | voltage, load %, output power |
+| Availability | ICMP ping |
 
-All component groups are discovered with low level discovery from the iDRAC
-name tables, so each disk, PSU, sensor and fan appears with its real label
-(for example `System Board Inlet Temp`, `PS1 Status`) instead of a bare index.
+## Key triggers
 
-## Dell status scale
-
-Dell reports component health as an integer: **3 = OK, 4 = Warning,
-5/6 = Critical**. Triggers map 4 to a warning and 5/6 to high severity.
-Temperatures are returned in tenths of a degree and divided by 10 on ingest.
+- **Power failure**: output source switches to battery (the headline alert).
+- **Low / depleted battery**: battery status reports low or depleted.
+- **Battery charge** below warning and critical thresholds.
+- **Runtime** below the configured number of minutes while on battery.
+- **Load** and **battery temperature** above their thresholds.
 
 ## Macros
 
 | Macro | Default | Purpose |
 |-------|---------|---------|
-| `{$SNMP_COMMUNITY}` | `public` | SNMP community, override per host |
-| `{$IDRAC_TEMP_WARN}` | 70 | Temperature warning (deg C) |
-| `{$IDRAC_TEMP_CRIT}` | 85 | Temperature critical (deg C) |
+| `{$SNMP_COMMUNITY}` | `public` | SNMP v2c community, override per host |
+| `{$UPS_BATTERY_WARN}` / `{$UPS_BATTERY_CRIT}` | 50 / 20 | Battery charge thresholds (%) |
+| `{$UPS_RUNTIME_WARN}` | 15 | Remaining runtime warning (minutes) |
+| `{$UPS_LOAD_WARN}` | 80 | Load warning (%) |
+| `{$UPS_TEMP_WARN}` | 40 | Battery temperature warning (deg C) |
 
-## Design note
+## Compatibility note
 
-The template deliberately watches the global system and storage status plus the
-individual power supplies, disks and temperatures (the components that are both
-actionable and invisible to the OS), and keeps fan faults at low severity since
-the global status already covers the critical cases. This keeps the alerts that
-reach an operator meaningful instead of noisy.
+Some three phase or higher end units do not implement every optional RFC 1628
+object (battery temperature, input frequency and output load % are the usual
+gaps). Those items will simply stay unsupported on such devices; the core
+battery, runtime and power state monitoring still works.
 
 ## Usage
 
-1. Enable the SNMP agent on the iDRAC (iDRAC Settings -> Services -> SNMP Agent).
-2. Import `dell_idrac_snmp.xml` under Data collection -> Templates.
-3. Create a host with an SNMP interface on the iDRAC address, set
-   `{$SNMP_COMMUNITY}` and link the template.
+1. Import `ups_snmp_rfc1628.xml` under Data collection -> Templates.
+2. Create a host with an SNMP v2c interface and set `{$SNMP_COMMUNITY}`.
+3. Link the template.
