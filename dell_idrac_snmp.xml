@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>7.4</version>
+    <template_groups>
+        <template_group>
+            <uuid>99023556cd5d4b6496057cc009609f23</uuid>
+            <name>Templates/Server hardware</name>
+        </template_group>
+    </template_groups>
+    <templates>
+        <template>
+            <uuid>4e3ca8f7339a4588ab3b2dfeb25491b4</uuid>
+            <template>Dell iDRAC SNMP</template>
+            <name>Dell iDRAC SNMP</name>
+            <description>Dell iDRAC hardware monitoring via SNMP (IDRAC-MIB 1.3.6.1.4.1.674.10892.5).&#13;
+Monitors power supplies, physical disks/RAID, temperatures, fans and the global hardware status.&#13;
+Dell scale: 3=OK, 4=Warning, 5/6=Critical.</description>
+            <groups>
+                <group>
+                    <name>Templates/Server hardware</name>
+                </group>
+            </groups>
+            <items>
+                <item>
+                    <uuid>20445ea00c7e4ff296c9f0770b8f2081</uuid>
+                    <name>iDRAC: Service Tag</name>
+                    <type>SNMP_AGENT</type>
+                    <snmp_oid>1.3.6.1.4.1.674.10892.5.1.3.2.0</snmp_oid>
+                    <key>idrac.servicetag</key>
+                    <delay>1h</delay>
+                    <history>7d</history>
+                    <trends>0</trends>
+                    <value_type>CHAR</value_type>
+                    <inventory_link>SERIALNO_A</inventory_link>
+                </item>
+                <item>
+                    <uuid>9d467d17471a425392be0a803b187601</uuid>
+                    <name>iDRAC: Model</name>
+                    <type>SNMP_AGENT</type>
+                    <snmp_oid>1.3.6.1.4.1.674.10892.5.1.3.12.0</snmp_oid>
+                    <key>idrac.model</key>
+                    <delay>1h</delay>
+                    <history>7d</history>
+                    <trends>0</trends>
+                    <value_type>CHAR</value_type>
+                    <inventory_link>MODEL</inventory_link>
+                </item>
+                <item>
+                    <uuid>3fcd433a8125469a8a058c0bfb567985</uuid>
+                    <name>iDRAC: Hostname</name>
+                    <type>SNMP_AGENT</type>
+                    <snmp_oid>1.3.6.1.4.1.674.10892.5.1.3.1.0</snmp_oid>
+                    <key>idrac.hostname</key>
+                    <delay>1h</delay>
+                    <history>7d</history>
+                    <trends>0</trends>
+                    <value_type>CHAR</value_type>
+                    <inventory_link>NAME</inventory_link>
+                </item>
+                <item>
+                    <uuid>2b23c96f2baf47ec93f4af320a0eb427</uuid>
+                    <name>iDRAC: Operating System</name>
+                    <type>SNMP_AGENT</type>
+                    <snmp_oid>1.3.6.1.4.1.674.10892.5.1.3.6.0</snmp_oid>
+                    <key>idrac.os</key>
+                    <delay>1h</delay>
+                    <history>7d</history>
+                    <trends>0</trends>
+                    <value_type>CHAR</value_type>
+                    <inventory_link>OS</inventory_link>
+                </item>
+                <item>
+                    <uuid>5642205864924a748c8f10cb224ea0c6</uuid>
+                    <name>iDRAC: Global System Status</name>
+                    <type>SNMP_AGENT</type>
+                    <snmp_oid>1.3.6.1.4.1.674.10892.5.2.1.0</snmp_oid>
+                    <key>idrac.global.system</key>
+                    <delay>2m</delay>
+                    <history>31d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <valuemap>
+                        <name>Dell Status</name>
+                    </valuemap>
+                    <triggers>
+                        <trigger>
+                            <uuid>2b49efd60b6f47a8a8e1b4dacb9bb914</uuid>
+                            <expression>last(/Dell iDRAC SNMP/idrac.global.system)&gt;=5</expression>
+                            <name>iDRAC: Global system status critical</name>
+                            <priority>HIGH</priority>
+                            <description>Global system hardware status is critical (Dell status 5/6).</description>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                        <trigger>
+                            <uuid>972adeb3adbf4549a18ca061251f2305</uuid>
+                            <expression>last(/Dell iDRAC SNMP/idrac.global.system)=4</expression>
+                            <name>iDRAC: Global system status warning</name>
+                            <priority>WARNING</priority>
+                            <description>Global system hardware status reports a warning (Dell status 4).</description>
+                            <manual_close>YES</manual_close>
+                            <dependencies>
+                                <dependency>
+                                    <name>iDRAC: Global system status critical</name>
+                                    <expression>last(/Dell iDRAC SNMP/idrac.global.system)&gt;=5</expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <uuid>59b543524ef7415e954185c767690ed5</uuid>
+                    <name>iDRAC: Global Storage Status</name>
+                    <type>SNMP_AGENT</type>
+                    <snmp_oid>1.3.6.1.4.1.674.10892.5.2.3.0</snmp_oid>
+                    <key>idrac.global.storage</key>
+                    <delay>2m</delay>
+                    <history>31d</history>
+                    <trends>90d</trends>
+                    <value_type>UNSIGNED</value_type>
+                    <valuemap>
+                        <name>Dell Status</name>
+                    </valuemap>
+                    <triggers>
+                        <trigger>
+                            <uuid>b71fced6bfb5418f8102abfe5ddeebdd</uuid>
+                            <expression>last(/Dell iDRAC SNMP/idrac.global.storage)&gt;=5</expression>
+                            <name>iDRAC: Global storage status critical</name>
+                            <priority>HIGH</priority>
+                            <description>Global storage/RAID status is critical (Dell status 5/6).</description>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                        <trigger>
+                            <uuid>4844659254cb4982aeda908ed59d958d</uuid>
+                            <expression>last(/Dell iDRAC SNMP/idrac.global.storage)=4</expression>
+                            <name>iDRAC: Global storage status warning</name>
+                            <priority>WARNING</priority>
+                            <description>Global storage/RAID status reports a warning (Dell status 4).</description>
+                            <manual_close>YES</manual_close>
+                            <dependencies>
+                                <dependency>
+                                    <name>iDRAC: Global storage status critical</name>
+                                    <expression>last(/Dell iDRAC SNMP/idrac.global.storage)&gt;=5</expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger>
+                    </triggers>
+                </item>
+            </items>
+            <discovery_rules>
+                <discovery_rule>
+                    <uuid>a4e3d5c0477d4d7fa357b87177e8b24c</uuid>
+                    <name>Power Supplies</name>
+                    <type>SNMP_AGENT</type>
+                    <snmp_oid>discovery[{#PSU_NAME},1.3.6.1.4.1.674.10892.5.4.600.12.1.8]</snmp_oid>
+                    <key>idrac.psu.discovery</key>
+                    <delay>1h</delay>
+                    <description>Discovers power supplies via the name table (600.12.1.8).</description>
+                    <item_prototypes>
+                        <item_prototype>
+                            <uuid>5e36a6c3a71341e59f56350457fcf620</uuid>
+                            <name>Power supply [{#PSU_NAME}]: Status</name>
+                            <type>SNMP_AGENT</type>
+                            <snmp_oid>1.3.6.1.4.1.674.10892.5.4.600.12.1.5.{#SNMPINDEX}</snmp_oid>
+                            <key>idrac.psu.status[{#SNMPINDEX}]</key>
+                            <delay>2m</delay>
+                            <history>31d</history>
+                            <trends>90d</trends>
+                            <value_type>UNSIGNED</value_type>
+                            <valuemap>
+                                <name>Dell Status</name>
+                            </valuemap>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <uuid>224db3510c3c482e93d49213dbcac5d5</uuid>
+                                    <expression>last(/Dell iDRAC SNMP/idrac.psu.status[{#SNMPINDEX}])&lt;&gt;3</expression>
+                                    <name>Power supply [{#PSU_NAME}] failed or faulty</name>
+                                    <priority>HIGH</priority>
+                                    <description>Power supply {#PSU_NAME} reports a non-OK status (Dell status other than 3). Check redundancy.</description>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+                <discovery_rule>
+                    <uuid>af0a04c97c6c4545bbbcb1da7f96c251</uuid>
+                    <name>Physical Disks</name>
+                    <type>SNMP_AGENT</type>
+                    <snmp_oid>discovery[{#DISK_NAME},1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.2]</snmp_oid>
+                    <key>idrac.disk.discovery</key>
+                    <delay>1h</delay>
+                    <description>Discovers physical disks via the name table (130.4.1.2).</description>
+                    <item_prototypes>
+                        <item_prototype>
+                            <uuid>a191438985c14dee92aef1b3c4abd9c2</uuid>
+                            <name>Physical disk [{#DISK_NAME}]: Status</name>
+                            <type>SNMP_AGENT</type>
+                            <snmp_oid>1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.4.{#SNMPINDEX}</snmp_oid>
+                            <key>idrac.disk.status[{#SNMPINDEX}]</key>
+                            <delay>2m</delay>
+                            <history>31d</history>
+                            <trends>90d</trends>
+                            <value_type>UNSIGNED</value_type>
+                            <valuemap>
+                                <name>Dell Status</name>
+                            </valuemap>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <uuid>df25655ecc7e4a0b9b5dd34670b71402</uuid>
+                                    <expression>last(/Dell iDRAC SNMP/idrac.disk.status[{#SNMPINDEX}])&lt;&gt;3</expression>
+                                    <name>Physical disk [{#DISK_NAME}] failed or degraded</name>
+                                    <priority>HIGH</priority>
+                                    <description>Physical disk {#DISK_NAME} reports a non-OK status. Possible failure or RAID degradation - investigate urgently.</description>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+                <discovery_rule>
+                    <uuid>aca7dd2f330941a79fbbdb90a0a5faf6</uuid>
+                    <name>Temperatures</name>
+                    <type>SNMP_AGENT</type>
+                    <snmp_oid>discovery[{#TEMP_NAME},1.3.6.1.4.1.674.10892.5.4.700.20.1.8]</snmp_oid>
+                    <key>idrac.temp.discovery</key>
+                    <delay>1h</delay>
+                    <description>Discovers temperature sensors via the name table (700.20.1.8).</description>
+                    <item_prototypes>
+                        <item_prototype>
+                            <uuid>166e794afc9d4aec91618a03e0deeadb</uuid>
+                            <name>Temperature [{#TEMP_NAME}]</name>
+                            <type>SNMP_AGENT</type>
+                            <snmp_oid>1.3.6.1.4.1.674.10892.5.4.700.20.1.6.{#SNMPINDEX}</snmp_oid>
+                            <key>idrac.temp[{#SNMPINDEX}]</key>
+                            <delay>2m</delay>
+                            <history>31d</history>
+                            <trends>180d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>&#176;C</units>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <parameters>
+                                        <parameter>0.1</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <uuid>b764ff92d0964ae88fe4a0e805151b4b</uuid>
+                                    <expression>avg(/Dell iDRAC SNMP/idrac.temp[{#SNMPINDEX}],5m)&gt;{$IDRAC_TEMP_CRIT}</expression>
+                                    <name>Temperature [{#TEMP_NAME}] critically high</name>
+                                    <priority>HIGH</priority>
+                                    <description>Temperature {#TEMP_NAME} is above {$IDRAC_TEMP_CRIT} deg C.</description>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <uuid>e886957d68cd4e23bf5485693ceb9828</uuid>
+                                    <expression>avg(/Dell iDRAC SNMP/idrac.temp[{#SNMPINDEX}],5m)&gt;{$IDRAC_TEMP_WARN}</expression>
+                                    <name>Temperature [{#TEMP_NAME}] high</name>
+                                    <priority>WARNING</priority>
+                                    <description>Temperature {#TEMP_NAME} is above {$IDRAC_TEMP_WARN} deg C.</description>
+                                    <manual_close>YES</manual_close>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>Temperature [{#TEMP_NAME}] critically high</name>
+                                            <expression>avg(/Dell iDRAC SNMP/idrac.temp[{#SNMPINDEX}],5m)&gt;{$IDRAC_TEMP_CRIT}</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+                <discovery_rule>
+                    <uuid>2fbab1defd2a459f806f04e935e8a955</uuid>
+                    <name>Fans</name>
+                    <type>SNMP_AGENT</type>
+                    <snmp_oid>discovery[{#FAN_NAME},1.3.6.1.4.1.674.10892.5.4.700.12.1.8]</snmp_oid>
+                    <key>idrac.fan.discovery</key>
+                    <delay>1h</delay>
+                    <description>Discovers fans via the name table (700.12.1.8). Low priority - the global status already covers critical cases.</description>
+                    <item_prototypes>
+                        <item_prototype>
+                            <uuid>cd8314b713134da782c9659d21b966df</uuid>
+                            <name>Fan [{#FAN_NAME}]: Status</name>
+                            <type>SNMP_AGENT</type>
+                            <snmp_oid>1.3.6.1.4.1.674.10892.5.4.700.12.1.5.{#SNMPINDEX}</snmp_oid>
+                            <key>idrac.fan.status[{#SNMPINDEX}]</key>
+                            <delay>5m</delay>
+                            <history>31d</history>
+                            <trends>90d</trends>
+                            <value_type>UNSIGNED</value_type>
+                            <valuemap>
+                                <name>Dell Status</name>
+                            </valuemap>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <uuid>8c8d5669c76f4b4992db546ea09e02aa</uuid>
+                                    <expression>last(/Dell iDRAC SNMP/idrac.fan.status[{#SNMPINDEX}])&lt;&gt;3</expression>
+                                    <name>Fan [{#FAN_NAME}] faulty</name>
+                                    <priority>INFO</priority>
+                                    <description>Fan {#FAN_NAME} reports a non-OK status.</description>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$IDRAC_TEMP_WARN}</macro>
+                    <value>70</value>
+                    <description>Temperature warning threshold in degrees Celsius.</description>
+                </macro>
+                <macro>
+                    <macro>{$IDRAC_TEMP_CRIT}</macro>
+                    <value>85</value>
+                    <description>Temperature critical threshold in degrees Celsius.</description>
+                </macro>
+                <macro>
+                    <macro>{$SNMP_COMMUNITY}</macro>
+                    <value>public</value>
+                    <description>SNMP community of the iDRAC.</description>
+                </macro>
+            </macros>
+            <valuemaps>
+                <valuemap>
+                    <uuid>97cc1e04d7ff4a53b0b5fd90500df9ca</uuid>
+                    <name>Dell Status</name>
+                    <mappings>
+                        <mapping>
+                            <value>1</value>
+                            <newvalue>other</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>2</value>
+                            <newvalue>unknown</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>3</value>
+                            <newvalue>OK</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>4</value>
+                            <newvalue>Warning (nonCritical)</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>5</value>
+                            <newvalue>Critical</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>6</value>
+                            <newvalue>Non-recoverable</newvalue>
+                        </mapping>
+                    </mappings>
+                </valuemap>
+            </valuemaps>
+        </template>
+    </templates>
+</zabbix_export>
